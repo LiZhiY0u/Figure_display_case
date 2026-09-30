@@ -1,3 +1,9 @@
 {
-  "rules": []
+  "desc": "允许微信索引小程序页面",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
 }
