@@ -157,10 +157,12 @@
   align-items: center;
   justify-content: center;
   width: 138rpx;
+  min-width: 138rpx;
+  max-width: 138rpx;
   height: 122rpx;
   margin: 0;
   padding: 0;
-  flex-shrink: 0;
+  flex: 0 0 138rpx;
   box-sizing: border-box;
   color: #ffffff;
   background: linear-gradient(145deg, #263449, #182334);
@@ -169,7 +171,7 @@
   line-height: 1;
 }
 
-.key:active {
+.key-active {
   background: #2563eb;
   transform: scale(0.96);
   box-shadow: 0 5rpx 10rpx rgba(37, 99, 235, 0.22);

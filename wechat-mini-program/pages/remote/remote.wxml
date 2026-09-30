@@ -29,30 +29,30 @@
 
     <view class="direction-pad">
       <view class="key-row key-row-center">
-        <button class="key" data-code="1" bindtap="sendKey">
+        <view class="key" hover-class="key-active" hover-stay-time="80" data-code="1" bindtap="sendKey">
           <text class="key-symbol">↑</text>
           <text class="key-label">上</text>
-        </button>
+        </view>
       </view>
       <view class="key-row key-row-middle">
-        <button class="key" data-code="3" bindtap="sendKey">
+        <view class="key" hover-class="key-active" hover-stay-time="80" data-code="3" bindtap="sendKey">
           <text class="key-symbol">←</text>
           <text class="key-label">左</text>
-        </button>
-        <button class="key key-confirm" data-code="5" bindtap="sendKey">
+        </view>
+        <view class="key key-confirm" hover-class="key-active" hover-stay-time="80" data-code="5" bindtap="sendKey">
           <text class="confirm-dot"></text>
           <text class="key-label">确定</text>
-        </button>
-        <button class="key" data-code="4" bindtap="sendKey">
+        </view>
+        <view class="key" hover-class="key-active" hover-stay-time="80" data-code="4" bindtap="sendKey">
           <text class="key-symbol">→</text>
           <text class="key-label">右</text>
-        </button>
+        </view>
       </view>
       <view class="key-row key-row-center">
-        <button class="key" data-code="2" bindtap="sendKey">
+        <view class="key" hover-class="key-active" hover-stay-time="80" data-code="2" bindtap="sendKey">
           <text class="key-symbol">↓</text>
           <text class="key-label">下</text>
-        </button>
+        </view>
       </view>
     </view>
   </view>
