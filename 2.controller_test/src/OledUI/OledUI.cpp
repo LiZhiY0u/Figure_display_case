@@ -10,6 +10,7 @@
 #include "OledUI.h"
 #include "MainPageState.h"
 #include "UiNavigation.h"
+#include "Input/BleRemote.h"
 #include "Input/SerialDebugInput.h"
 #include "main.h"
 
@@ -108,6 +109,30 @@ void OledUI::Key_Scan()
         gamepad_axis = 0;
         btn.id = BTN_ID_SP;
         btn.pressed = true;
+    }
+
+    // BLE remote input. Keep hardware input priority and consume at most one
+    // command per UI iteration.
+    RemoteKeyInput::Action remote_action = RemoteKeyInput::Action::None;
+    if (!btn.pressed && BleRemote::Read(remote_action))
+    {
+        switch (remote_action)
+        {
+        case RemoteKeyInput::Action::Previous:
+            btn.id = BTN_ID_CC;
+            btn.pressed = true;
+            break;
+        case RemoteKeyInput::Action::Next:
+            btn.id = BTN_ID_CW;
+            btn.pressed = true;
+            break;
+        case RemoteKeyInput::Action::Confirm:
+            btn.id = BTN_ID_SP;
+            btn.pressed = true;
+            break;
+        case RemoteKeyInput::Action::None:
+            break;
+        }
     }
 
 #if ENABLE_SERIAL_INPUT_DEBUG

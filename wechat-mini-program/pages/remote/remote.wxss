@@ -1,0 +1,103 @@
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 32rpx;
+}
+
+.status-card,
+.remote-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  box-shadow: 0 12rpx 36rpx rgba(15, 23, 42, 0.08);
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+}
+
+.title {
+  font-size: 38rpx;
+  font-weight: 700;
+}
+
+.status {
+  margin-top: 10rpx;
+  color: #ef4444;
+  font-size: 26rpx;
+}
+
+.status.online {
+  color: #16a34a;
+}
+
+.connect-button {
+  width: 180rpx;
+  margin: 0;
+  color: #ffffff;
+  background: #2563eb;
+  border-radius: 18rpx;
+  font-size: 30rpx;
+}
+
+.remote-card {
+  display: grid;
+  grid-template-columns: repeat(3, 150rpx);
+  grid-template-rows: repeat(3, 150rpx);
+  justify-content: center;
+  gap: 24rpx;
+  margin-top: 36rpx;
+  padding: 48rpx 24rpx;
+}
+
+.key {
+  width: 150rpx;
+  height: 150rpx;
+  margin: 0;
+  padding: 0;
+  color: #ffffff;
+  background: #1f2937;
+  border-radius: 30rpx;
+  font-size: 34rpx;
+  line-height: 150rpx;
+}
+
+.key:active {
+  background: #2563eb;
+  transform: scale(0.96);
+}
+
+.key-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.key-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.key-confirm {
+  grid-column: 2;
+  grid-row: 2;
+  background: #2563eb;
+}
+
+.key-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.key-down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.hint {
+  margin-top: 30rpx;
+  color: #6b7280;
+  text-align: center;
+  font-size: 26rpx;
+}

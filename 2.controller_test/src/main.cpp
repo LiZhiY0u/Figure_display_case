@@ -9,6 +9,7 @@
 #include <Arduino.h>
 #include "HAL/HAL.h"
 #include "Encoder/HAL_Encoder.h"
+#include "Input/BleRemote.h"
 #include "RGB.h"
 #include "TB6612.h"
 #include "OledUI/OledDriver.h"
@@ -143,6 +144,7 @@ void Task_update(void* pvParameters)
 void setup()
 {
     HAL::Init();
+    BleRemote::Init();
 
     xTaskCreatePinnedToCore(
         Task_start, "start_task", 4096, NULL, 2, &Task_start_Handle, ESP32_RUNNING_CORE);
@@ -165,6 +167,7 @@ void setup()
 // ===========================
 void loop()
 {
-    vTaskDelay(1000);
+    BleRemote::Update();
+    vTaskDelay(10);
 }
 

@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "pages/remote/remote"
+  ],
+  "window": {
+    "navigationBarTitleText": "展示柜遥控器",
+    "navigationBarBackgroundColor": "#111827",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f3f4f6"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

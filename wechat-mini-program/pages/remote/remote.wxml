@@ -1,0 +1,24 @@
+<view class="page">
+  <view class="status-card">
+    <view>
+      <view class="title">FigureCase</view>
+      <view class="status {{connected ? 'online' : ''}}">{{statusText}}</view>
+    </view>
+    <button
+      class="connect-button"
+      loading="{{connecting}}"
+      disabled="{{connecting}}"
+      bindtap="toggleConnection"
+    >{{connected ? '断开' : '连接'}}</button>
+  </view>
+
+  <view class="remote-card">
+    <button class="key key-up" data-code="1" bindtap="sendKey">上</button>
+    <button class="key key-left" data-code="3" bindtap="sendKey">左</button>
+    <button class="key key-confirm" data-code="5" bindtap="sendKey">确定</button>
+    <button class="key key-right" data-code="4" bindtap="sendKey">右</button>
+    <button class="key key-down" data-code="2" bindtap="sendKey">下</button>
+  </view>
+
+  <view class="hint">请先打开手机蓝牙，再点击连接</view>
+</view>
