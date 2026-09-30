@@ -1,11 +1,17 @@
 <view class="page">
   <view class="status-card">
-    <view>
-      <view class="title">FigureCase</view>
-      <view class="status {{connected ? 'online' : ''}}">{{statusText}}</view>
+    <view class="device-summary">
+      <view class="device-icon">FC</view>
+      <view class="device-copy">
+        <view class="title">FigureCase</view>
+        <view class="status {{connected ? 'online' : ''}}">
+          <view class="status-dot"></view>
+          <text>{{statusText}}</text>
+        </view>
+      </view>
     </view>
     <button
-      class="connect-button"
+      class="connect-button {{connected ? 'disconnect' : ''}}"
       loading="{{connecting}}"
       disabled="{{connecting}}"
       bindtap="toggleConnection"
@@ -13,12 +19,46 @@
   </view>
 
   <view class="remote-card">
-    <button class="key key-up" data-code="1" bindtap="sendKey">上</button>
-    <button class="key key-left" data-code="3" bindtap="sendKey">左</button>
-    <button class="key key-confirm" data-code="5" bindtap="sendKey">确定</button>
-    <button class="key key-right" data-code="4" bindtap="sendKey">右</button>
-    <button class="key key-down" data-code="2" bindtap="sendKey">下</button>
+    <view class="remote-header">
+      <view>
+        <view class="remote-title">方向控制</view>
+        <view class="remote-subtitle">轻触按键控制设备界面</view>
+      </view>
+      <view class="remote-badge">BLE</view>
+    </view>
+
+    <view class="direction-pad">
+      <view class="key-row key-row-center">
+        <button class="key" data-code="1" bindtap="sendKey">
+          <text class="key-symbol">↑</text>
+          <text class="key-label">上</text>
+        </button>
+      </view>
+      <view class="key-row key-row-middle">
+        <button class="key" data-code="3" bindtap="sendKey">
+          <text class="key-symbol">←</text>
+          <text class="key-label">左</text>
+        </button>
+        <button class="key key-confirm" data-code="5" bindtap="sendKey">
+          <text class="confirm-dot"></text>
+          <text class="key-label">确定</text>
+        </button>
+        <button class="key" data-code="4" bindtap="sendKey">
+          <text class="key-symbol">→</text>
+          <text class="key-label">右</text>
+        </button>
+      </view>
+      <view class="key-row key-row-center">
+        <button class="key" data-code="2" bindtap="sendKey">
+          <text class="key-symbol">↓</text>
+          <text class="key-label">下</text>
+        </button>
+      </view>
+    </view>
   </view>
 
-  <view class="hint">请先打开手机蓝牙，再点击连接</view>
+  <view class="hint">
+    <view class="hint-dot {{connected ? 'online' : ''}}"></view>
+    <text>{{connected ? '连接正常，可以控制设备' : '开启手机蓝牙后连接设备'}}</text>
+  </view>
 </view>

@@ -1,7 +1,8 @@
 .page {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 32rpx;
+  padding: 32rpx 30rpx 60rpx;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
 
 .status-card,
@@ -15,89 +16,207 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 32rpx;
+  min-height: 112rpx;
+  padding: 26rpx 28rpx;
+  box-sizing: border-box;
+}
+
+.device-summary {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.device-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76rpx;
+  height: 76rpx;
+  flex-shrink: 0;
+  color: #ffffff;
+  background: linear-gradient(145deg, #2563eb, #1d4ed8);
+  border-radius: 22rpx;
+  font-size: 25rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.device-copy {
+  min-width: 0;
+  margin-left: 22rpx;
 }
 
 .title {
-  font-size: 38rpx;
+  font-size: 34rpx;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .status {
-  margin-top: 10rpx;
+  display: flex;
+  align-items: center;
+  margin-top: 9rpx;
   color: #ef4444;
-  font-size: 26rpx;
+  font-size: 24rpx;
 }
 
 .status.online {
   color: #16a34a;
 }
 
+.status-dot {
+  width: 12rpx;
+  height: 12rpx;
+  margin-right: 10rpx;
+  background: currentColor;
+  border-radius: 50%;
+}
+
 .connect-button {
-  width: 180rpx;
+  width: 166rpx;
+  height: 72rpx;
   margin: 0;
+  padding: 0;
+  flex-shrink: 0;
   color: #ffffff;
   background: #2563eb;
-  border-radius: 18rpx;
-  font-size: 30rpx;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 72rpx;
+}
+
+.connect-button.disconnect {
+  color: #dc2626;
+  background: #fef2f2;
 }
 
 .remote-card {
-  display: grid;
-  grid-template-columns: repeat(3, 150rpx);
-  grid-template-rows: repeat(3, 150rpx);
+  margin-top: 30rpx;
+  padding: 30rpx 28rpx 38rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.remote-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6rpx 24rpx;
+}
+
+.remote-title {
+  color: #111827;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.remote-subtitle {
+  margin-top: 6rpx;
+  color: #94a3b8;
+  font-size: 22rpx;
+}
+
+.remote-badge {
+  padding: 8rpx 18rpx;
+  color: #2563eb;
+  background: #eff6ff;
+  border-radius: 22rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.direction-pad {
+  padding: 28rpx 16rpx;
+  background: #f8fafc;
+  border: 2rpx solid #eef2f7;
+  border-radius: 30rpx;
+  box-sizing: border-box;
+}
+
+.key-row {
+  display: flex;
+  width: 100%;
+}
+
+.key-row-center {
   justify-content: center;
-  gap: 24rpx;
-  margin-top: 36rpx;
-  padding: 48rpx 24rpx;
+}
+
+.key-row-middle {
+  justify-content: center;
+  gap: 20rpx;
+  margin: 20rpx 0;
 }
 
 .key {
-  width: 150rpx;
-  height: 150rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 138rpx;
+  height: 122rpx;
   margin: 0;
   padding: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
   color: #ffffff;
-  background: #1f2937;
-  border-radius: 30rpx;
-  font-size: 34rpx;
-  line-height: 150rpx;
+  background: linear-gradient(145deg, #263449, #182334);
+  border-radius: 26rpx;
+  box-shadow: 0 10rpx 18rpx rgba(15, 23, 42, 0.16);
+  line-height: 1;
 }
 
 .key:active {
   background: #2563eb;
   transform: scale(0.96);
+  box-shadow: 0 5rpx 10rpx rgba(37, 99, 235, 0.22);
 }
 
-.key-up {
-  grid-column: 2;
-  grid-row: 1;
+.key-symbol {
+  font-size: 42rpx;
+  font-weight: 500;
+  line-height: 42rpx;
 }
 
-.key-left {
-  grid-column: 1;
-  grid-row: 2;
+.key-label {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  line-height: 24rpx;
 }
 
 .key-confirm {
-  grid-column: 2;
-  grid-row: 2;
-  background: #2563eb;
+  background: linear-gradient(145deg, #3478f6, #1d4ed8);
+  box-shadow: 0 10rpx 20rpx rgba(37, 99, 235, 0.26);
 }
 
-.key-right {
-  grid-column: 3;
-  grid-row: 2;
-}
-
-.key-down {
-  grid-column: 2;
-  grid-row: 3;
+.confirm-dot {
+  width: 28rpx;
+  height: 28rpx;
+  border: 6rpx solid rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  box-sizing: border-box;
 }
 
 .hint {
-  margin-top: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28rpx;
   color: #6b7280;
-  text-align: center;
-  font-size: 26rpx;
+  font-size: 24rpx;
+}
+
+.hint-dot {
+  width: 10rpx;
+  height: 10rpx;
+  margin-right: 12rpx;
+  background: #94a3b8;
+  border-radius: 50%;
+}
+
+.hint-dot.online {
+  background: #22c55e;
 }
