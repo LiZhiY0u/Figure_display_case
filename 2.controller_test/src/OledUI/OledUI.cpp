@@ -11,6 +11,7 @@
 #include "MainPageState.h"
 #include "UiNavigation.h"
 #include "Input/BleRemote.h"
+#include "ConnectionToast.h"
 #include "Input/SerialDebugInput.h"
 #include "main.h"
 
@@ -1315,6 +1316,7 @@ static void ui_proc()
         case M_LIGHT_COLOR: OledUI::Light_Color_Proc();  break;
         case M_LIGHT_EFFECT:OledUI::Light_Effect_Proc(); break;
         }
+        ConnectionToast::Draw();
         break;
     }
 }

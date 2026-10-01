@@ -7,10 +7,12 @@
 #include <freertos/queue.h>
 
 #include "BleRemoteProfile.h"
+#include "Controller/Controller.h"
 
 namespace
 {
 QueueHandle_t key_queue = NULL;
+QueueHandle_t connection_queue = NULL;
 
 const uint8_t advertising_data[] = {
     0x02, 0x01, 0x06,
@@ -18,14 +20,24 @@ const uint8_t advertising_data[] = {
     'F', 'i', 'g', 'u', 'r', 'e', 'C', 'a', 's', 'e',
 };
 
-void OnConnected(ControllerPtr controller)
+void OnAttEvent(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size)
 {
-    (void)controller;
-}
-
-void OnDisconnected(ControllerPtr controller)
-{
-    (void)controller;
+    (void)channel;
+    (void)size;
+    if (packet_type != HCI_EVENT_PACKET)
+        return;
+    switch (hci_event_packet_get_type(packet))
+    {
+    case ATT_EVENT_CONNECTED:
+        BleRemote::Notify(BleRemote::ConnectionEvent::MiniAppConnected);
+        break;
+    case ATT_EVENT_DISCONNECTED:
+        BleRemote::Notify(BleRemote::ConnectionEvent::MiniAppDisconnected);
+        gap_advertisements_enable(1);
+        break;
+    default:
+        break;
+    }
 }
 
 int OnWrite(
@@ -57,16 +69,18 @@ int OnWrite(
 void BleRemote::Init()
 {
     key_queue = xQueueCreate(8, sizeof(RemoteKeyInput::Action));
-    if (key_queue == NULL)
+    connection_queue = xQueueCreate(8, sizeof(ConnectionEvent));
+    if (key_queue == NULL || connection_queue == NULL)
     {
         Serial.println("BLE remote queue allocation failed");
         return;
     }
 
-    BP32.setup(&OnConnected, &OnDisconnected);
-    BP32.enableNewBluetoothConnections(false);
+    Controller_init();
+    BP32.enableNewBluetoothConnections(true);
 
     att_server_init(kBleRemoteProfileData, NULL, OnWrite);
+    att_server_register_packet_handler(OnAttEvent);
 
     bd_addr_t null_address = {0, 0, 0, 0, 0, 0};
     gap_advertisements_set_params(
@@ -87,7 +101,19 @@ void BleRemote::Init()
 
 void BleRemote::Update()
 {
-    BP32.update();
+    Controller_loop();
+}
+
+void BleRemote::Notify(ConnectionEvent event)
+{
+    if (connection_queue != NULL)
+        xQueueSend(connection_queue, &event, 0);
+}
+
+bool BleRemote::ReadConnectionEvent(ConnectionEvent &event)
+{
+    return connection_queue != NULL &&
+        xQueueReceive(connection_queue, &event, 0) == pdTRUE;
 }
 
 bool BleRemote::Read(RemoteKeyInput::Action &action)

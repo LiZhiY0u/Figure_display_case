@@ -1,4 +1,5 @@
 #include "Controller/Controller.h"
+#include "Input/BleRemote.h"
 
 ControllerPtr myControllers[BP32_MAX_GAMEPADS];
 
@@ -20,6 +21,8 @@ void onConnectedController(ControllerPtr ctl)
             Serial.printf("Controller model: %s, VID=0x%04x, PID=0x%04x\n", ctl->getModelName().c_str(), properties.vendor_id,
                           properties.product_id);
             myControllers[i] = ctl;
+            if (ctl->isGamepad())
+                BleRemote::Notify(BleRemote::ConnectionEvent::GamepadConnected);
             foundEmptySlot = true;
             break;
         }
@@ -39,6 +42,8 @@ void onDisconnectedController(ControllerPtr ctl)
         if (myControllers[i] == ctl)
         {
             Serial.printf("CALLBACK: Controller disconnected from index=%d\n", i);
+            if (ctl->isGamepad())
+                BleRemote::Notify(BleRemote::ConnectionEvent::GamepadDisconnected);
             myControllers[i] = nullptr;
             foundController = true;
             break;
@@ -323,7 +328,7 @@ void Controller_init()
     // Calling "forgetBluetoothKeys" in setup() just as an example.
     // Forgetting Bluetooth keys prevents "paired" gamepads to reconnect.
     // But it might also fix some connection / re-connection issues.
-    BP32.forgetBluetoothKeys();
+    // Preserve pairing keys so known gamepads can reconnect after reboot.
 
     // Enables mouse / touchpad support for gamepads that support them.
     // When enabled, controllers like DualSense and DualShock4 generate two connected devices:
