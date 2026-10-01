@@ -5,10 +5,35 @@ ControllerPtr myControllers[BP32_MAX_GAMEPADS];
 
 uint8_t gamepad_axis = 0;
 
+// Target gamepad: C0:D6:D5:EE:DB:8A. This filter applies only to gamepads.
+static const uint8_t target_gamepad_address[6] = {0xC0, 0xD6, 0xD5, 0xEE, 0xDB, 0x8A};
+static bool gamepad_notified[BP32_MAX_GAMEPADS] = {};
+
+static bool IsTargetGamepad(ControllerPtr ctl)
+{
+    const ControllerProperties properties = ctl->getProperties();
+    for (uint8_t i = 0; i < 6; ++i)
+        if (properties.btaddr[i] != target_gamepad_address[i])
+            return false;
+    return true;
+}
+
 // This callback gets called any time a new gamepad is connected.
 // Up to 4 gamepads can be connected at the same time.
 void onConnectedController(ControllerPtr ctl)
 {
+    if (ctl->isGamepad())
+    {
+        const ControllerProperties properties = ctl->getProperties();
+        for (uint8_t i = 0; i < 6; ++i)
+        {
+            if (properties.btaddr[i] != target_gamepad_address[i])
+            {
+                ctl->disconnect();
+                return;
+            }
+        }
+    }
     bool foundEmptySlot = false;
     for (int i = 0; i < BP32_MAX_GAMEPADS; i++)
     {
@@ -21,6 +46,7 @@ void onConnectedController(ControllerPtr ctl)
             Serial.printf("Controller model: %s, VID=0x%04x, PID=0x%04x\n", ctl->getModelName().c_str(), properties.vendor_id,
                           properties.product_id);
             myControllers[i] = ctl;
+            gamepad_notified[i] = ctl->isGamepad();
             if (ctl->isGamepad())
                 BleRemote::Notify(BleRemote::ConnectionEvent::GamepadConnected);
             foundEmptySlot = true;
@@ -42,8 +68,9 @@ void onDisconnectedController(ControllerPtr ctl)
         if (myControllers[i] == ctl)
         {
             Serial.printf("CALLBACK: Controller disconnected from index=%d\n", i);
-            if (ctl->isGamepad())
+            if (gamepad_notified[i])
                 BleRemote::Notify(BleRemote::ConnectionEvent::GamepadDisconnected);
+            gamepad_notified[i] = false;
             myControllers[i] = nullptr;
             foundController = true;
             break;
@@ -285,8 +312,22 @@ void processBalanceBoard(ControllerPtr ctl)
 
 void processControllers()
 {
-    for (auto myController : myControllers)
+    for (int i = 0; i < BP32_MAX_GAMEPADS; ++i)
     {
+        ControllerPtr myController = myControllers[i];
+        // On first pairing, the connection callback can precede class data.
+        if (myController && myController->isConnected() &&
+            myController->isGamepad() && !gamepad_notified[i])
+        {
+            if (!IsTargetGamepad(myController))
+            {
+                myController->disconnect();
+                continue;
+            }
+            gamepad_notified[i] = true;
+            BleRemote::Notify(BleRemote::ConnectionEvent::GamepadConnected);
+            Serial.printf("Gamepad ready: connection notification, index=%d\n", i);
+        }
         if (myController && myController->isConnected() && myController->hasData())
         {
             if (myController->isGamepad())
