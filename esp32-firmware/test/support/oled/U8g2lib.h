@@ -31,6 +31,7 @@ struct U8G2_SH1106_128X64_NONAME_F_HW_I2C {
     void drawLine(int x,int y,int xx,int yy) { record("line",{x,y,xx,yy}); }
     void setCursor(int x,int y) { record("cursor",{x,y}); }
     void print(const char* s) { record("print",{},s); }
+    void print(char* s) { print(static_cast<const char*>(s)); }
     void print(char c) { record("print",{},std::string(1,c)); }
     template<typename T> void print(T value) { record("print",{},std::to_string(value)); }
     void setContrast(uint8_t c) { record("contrast",{c}); }

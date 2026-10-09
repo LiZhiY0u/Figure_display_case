@@ -16,4 +16,7 @@ function Move-Functions([string]$target,[string[]]$names,[string]$includes) {
 if($Stage -eq 'input') {
     Move-Functions 'UiInput.cpp' @('OledUI::Key_Scan') "#include `"OledUI.h`"`n#include `"Input/InputQueue.h`"`n#include `"Input/InputAdapters.h`"`n#include `"UiInputAdapter.h`"`n#include `"Encoder/HAL_Encoder.h`"`n#ifndef ENABLE_SERIAL_INPUT_DEBUG`n#define ENABLE_SERIAL_INPUT_DEBUG 0`n#endif"
 }
+if($Stage -eq 'renderer') {
+    Move-Functions 'UiRenderer.cpp' @('OledUI::Animation','OledUI::SetAnimationCurve','OledUI::GetAnimationCurve','OledUI::Fade','OledUI::Tile_Show','List_Draw_Value','List_Draw_CheckBox_Frame','List_Draw_CheckBox_Dot','List_Draw_Krf','List_Draw_Kpf','List_Draw_Text_And_CheckBox','OledUI::List_Show','OledUI::Volt_Show','OledUI::Window_Show') '#include "OledUI.h"'
+}
 [IO.File]::WriteAllText($sourcePath,$script:source,[Text.UTF8Encoding]::new($false))

@@ -34,6 +34,9 @@ foreach ($testFile in $testFiles) {
     if ($testName -eq 'ui_renderer') {
         $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/oled')) + $compileArguments + @((Join-Path $projectRoot 'src/OledUI/UiRenderer.cpp'), (Join-Path $projectRoot 'src/OledUI/OledMenus.cpp'))
     }
+    if ($testName -eq 'ui_dispatch') {
+        $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/oled')) + $compileArguments + @((Join-Path $projectRoot 'src/OledUI/OledUI.cpp'), (Join-Path $projectRoot 'src/OledUI/UiPages/UiPages.cpp'), (Join-Path $projectRoot 'src/OledUI/OledMenus.cpp'))
+    }
     if ($testName -eq 'app_lifecycle') {
         $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/app')) + $compileArguments + (Join-Path $projectRoot 'src/App/App.cpp')
     }
