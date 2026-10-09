@@ -34,14 +34,14 @@ wechat-mini-program/ 微信小程序 BLE 遥控器
 | `src/Bluetooth` | 统一蓝牙生命周期、手柄管理、小程序 ATT 服务、独立连接通知队列 |
 | `src/Input` | 纯手柄状态机、统一输入事件队列与输入适配 |
 | `src/Diagnostics` | 独立可开关手柄日志，不参与控制逻辑 |
-| `src/OledUI` | 菜单、导航、页面处理、绘制、动画、通知弹窗 |
+| `src/OledUI` | 薄入口、内部上下文、输入、公共绘制、分组页面、导航与独立连接弹窗 |
 | `src/Encoder` | 编码器采集与按钮事件 |
 | `src/HAL`、`RGB`、`TB6612` | 电源、灯带、电机等硬件操作 |
 | `src/Configs` | 板级引脚、任务规格、输入/蓝牙配置与版本；Config.h 为 HAL 兼容入口 |
 
 手柄、小程序、编码器和串口统一提交带来源与时间戳的语义事件；UI 每轮最多消费一个 FIFO 事件。队列固定容量 16，满时拒绝新事件并计数，不覆盖旧事件，不阻塞生产者。蓝牙栈为 Bluepad32/BTstack，不应混用另一蓝牙栈的 BLEDevice 初始化。
 
-[架构重构设计](资料/docs/superpowers/specs/2026-10-10-firmware-architecture-design.md)分阶段实施。输入统一和蓝牙职责分离已由用户实机验证；第三阶段 App/配置整理完成代码验证，等待实机回归；UI 页面拆分尚未实施。[输入验收记录](资料/docs/firmware-input-validation.md)、[蓝牙验收记录](资料/docs/firmware-bluetooth-validation.md)、[App 验收记录](资料/docs/firmware-app-validation.md)。历史文档路径见[资料说明](资料/README.md)。
+[架构重构设计](资料/docs/superpowers/specs/2026-10-10-firmware-architecture-design.md)分阶段实施。输入、蓝牙与App/配置三个阶段已由用户实机验证；第四阶段OLED模块拆分完成代码验证，等待实机回归。[输入验收记录](资料/docs/firmware-input-validation.md)、[蓝牙验收记录](资料/docs/firmware-bluetooth-validation.md)、[App验收记录](资料/docs/firmware-app-validation.md)、[OLED验收记录](资料/docs/firmware-oled-validation.md)。历史文档路径见[资料说明](资料/README.md)。
 
 ## 环境与编译
 
@@ -64,7 +64,7 @@ wechat-mini-program/ 微信小程序 BLE 遥控器
 
 若环境未初始化，用 VS Code 打开 `esp32-firmware` 并等待 PlatformIO 扩展初始化后重试。`.pio/`、生成的 `.vscode/` 不入库。重命名后重新打开新固件目录。
 
-`test/` 包含十四组独立主机 C++ 测试，覆盖 UI 纯逻辑、输入、连接与应用生命周期、任务参数及失败清理。已安装 g++/clang++ 时，在仓库根目录运行 `& .\esp32-firmware\tools\run-host-tests.ps1`。尚未配置 PlatformIO native 环境；编译及逻辑测试不能替代实机验收。
+`test/` 包含二十组独立主机 C++ 测试，覆盖 UI 纯逻辑、输入、连接与应用生命周期、任务参数、绘制记录、弹窗时序、页面分发与真实跨文件页面生命周期。已安装 g++/clang++ 时，在仓库根目录运行 `& .\esp32-firmware\tools\run-host-tests.ps1`。串口输入测试同时编译调试开/关两种配置，并执行迁移脚本安全回归。尚未配置 PlatformIO native 环境；编译及逻辑测试不能替代实机验收。
 
 ## 代码中的引脚配置
 

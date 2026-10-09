@@ -1,5 +1,5 @@
 #include <cassert>
-#include "OledUI/OledUI.h"
+#include "OledUI/UiContext.h"
 uint32_t test_now=0;
 SerialFake Serial;
 U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2;

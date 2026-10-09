@@ -37,6 +37,10 @@ foreach ($testFile in $testFiles) {
     if ($testName -eq 'ui_dispatch') {
         $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/oled')) + $compileArguments + @((Join-Path $projectRoot 'src/OledUI/OledUI.cpp'), (Join-Path $projectRoot 'src/OledUI/UiPages/UiPages.cpp'), (Join-Path $projectRoot 'src/OledUI/OledMenus.cpp'))
     }
+    if ($testName -eq 'ui_lifecycle') {
+        $oledSources = Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src/OledUI') -Recurse -Filter '*.cpp' | Where-Object { $_.Name -ne 'OledDriver.cpp' }
+        $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/oled'), '-Wno-unused-variable') + $compileArguments + @($oledSources.FullName)
+    }
     if ($testName -eq 'app_lifecycle') {
         $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/app')) + $compileArguments + (Join-Path $projectRoot 'src/App/App.cpp')
     }
@@ -70,3 +74,4 @@ foreach ($testFile in $testFiles) {
 }
 if ($passed -eq 0) { throw 'No tests selected.' }
 Write-Output "PASS $passed test suites"
+if (!$Only) { & (Join-Path $projectRoot 'test/migration_safety/test-migration-safety.ps1') }

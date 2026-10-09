@@ -4,7 +4,10 @@ namespace ToastTimeline {
 class State {
 public:
     void Start(uint32_t now) { started_=now; active_=true; }
-    bool Active(uint32_t now) const { return active_ && now-started_<2600u; }
+    bool Active(uint32_t now) {
+        if(active_ && now-started_>=2600u) active_=false;
+        return active_;
+    }
     int X(uint32_t now) const {
         const uint32_t elapsed=now-started_;
         if(elapsed<300u) { const uint32_t remaining=300u-elapsed; return 18+static_cast<int>(110u*remaining*remaining/90000u); }

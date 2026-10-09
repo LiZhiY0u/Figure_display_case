@@ -1,6 +1,6 @@
 #include <cassert>
 #include <deque>
-#include "OledUI/OledUI.h"
+#include "OledUI/UiContext.h"
 #include "Input/InputQueue.h"
 uint32_t test_now=123;
 SerialFake Serial;
