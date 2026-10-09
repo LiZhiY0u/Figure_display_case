@@ -1,7 +1,7 @@
 #ifndef OLED_CONNECTION_TOAST_H
 #define OLED_CONNECTION_TOAST_H
 
-#include "Input/BleRemote.h"
+#include "Bluetooth/ConnectionEvents.h"
 #include "ConnectionIcons.h"
 #include "OledDriver.h"
 
@@ -11,11 +11,11 @@ inline void Draw()
 {
     static bool active = false;
     static uint32_t started = 0;
-    static BleRemote::ConnectionEvent event;
+    static ConnectionEvents::Event event;
     const uint32_t now = millis();
     if (active && now - started >= 2600u)
         active = false;
-    if (!active && BleRemote::ReadConnectionEvent(event))
+    if (!active && ConnectionEvents::Read(event))
     {
         active = true;
         started = now;
@@ -41,10 +41,10 @@ inline void Draw()
     if (x >= DISP_W)
         return;
 
-    const bool gamepad = event == BleRemote::ConnectionEvent::GamepadConnected ||
-        event == BleRemote::ConnectionEvent::GamepadDisconnected;
-    const bool connected = event == BleRemote::ConnectionEvent::GamepadConnected ||
-        event == BleRemote::ConnectionEvent::MiniAppConnected;
+    const bool gamepad = event == ConnectionEvents::Event::GamepadConnected ||
+        event == ConnectionEvents::Event::GamepadDisconnected;
+    const bool connected = event == ConnectionEvents::Event::GamepadConnected ||
+        event == ConnectionEvents::Event::MiniAppConnected;
     const uint8_t *icon = gamepad ? ConnectionIcons::Gamepad : ConnectionIcons::MiniApp;
     const char *title = gamepad ? "Gamepad" : "Mini App";
     const uint8_t color = u8g2.getDrawColor();

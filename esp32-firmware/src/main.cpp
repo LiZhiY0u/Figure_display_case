@@ -9,7 +9,7 @@
 #include <Arduino.h>
 #include "HAL/HAL.h"
 #include "Encoder/HAL_Encoder.h"
-#include "Input/BleRemote.h"
+#include "Bluetooth/BluetoothService.h"
 #include "Input/InputQueue.h"
 #include "RGB.h"
 #include "TB6612.h"
@@ -126,19 +126,6 @@ void Task_update(void* pvParameters)
 }
 
 // ===========================
-// Task: Gamepad controller
-// ===========================
-// void Controller_start(void* pvParameters)
-// {
-//     Controller_init();
-//     while (1)
-//     {
-//         Controller_loop();
-//         vTaskDelay(100);
-//     }
-// }
-
-// ===========================
 // Arduino setup
 // ===========================
 void setup()
@@ -148,7 +135,10 @@ void setup()
         Serial.println("Input queue initialization failed; application not started");
         return;
     }
-    BleRemote::Init();
+    if (!BluetoothService::Init()) {
+        Serial.println("Bluetooth initialization failed; application not started");
+        return;
+    }
 
     xTaskCreatePinnedToCore(
         Task_start, "start_task", 4096, NULL, 2, &Task_start_Handle, ESP32_RUNNING_CORE);
@@ -173,7 +163,7 @@ void setup()
 void loop()
 {
     if (application_ready)
-        BleRemote::Update();
+        BluetoothService::Update();
     vTaskDelay(10);
 }
 

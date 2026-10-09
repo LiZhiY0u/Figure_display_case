@@ -1,11 +1,13 @@
-#include "Controller.h"
-#include "Input/BleRemote.h"
+#include "GamepadController.h"
+#include <Arduino.h>
+#include <Bluepad32.h>
+#include "ConnectionEvents.h"
+#include "Configs/BluetoothConfig.h"
 #include "Input/GamepadInput.h"
 #include "Input/InputQueue.h"
 #include "Diagnostics/GamepadLogger.h"
 
 namespace {
-const uint8_t TargetAddress[6] = {0xC0, 0xD6, 0xD5, 0xEE, 0xDB, 0x8A};
 struct Slot {
     ControllerPtr controller = nullptr;
     bool notified = false;
@@ -17,7 +19,7 @@ bool IsTarget(ControllerPtr controller)
 {
     const ControllerProperties properties = controller->getProperties();
     for (uint8_t i = 0; i < 6; ++i)
-        if (properties.btaddr[i] != TargetAddress[i]) return false;
+        if (properties.btaddr[i] != BluetoothConfig::TargetGamepadAddress[i]) return false;
     return true;
 }
 
@@ -40,7 +42,7 @@ void OnConnected(ControllerPtr controller)
         slot.input.Reset();
         slot.notified = controller->isGamepad();
         GamepadLogger::Reset(i);
-        if (slot.notified) BleRemote::Notify(BleRemote::ConnectionEvent::GamepadConnected);
+        if (slot.notified) ConnectionEvents::Push(ConnectionEvents::Event::GamepadConnected);
         Serial.printf("Gamepad connection: slot=%u, model=%s\n", i, controller->getModelName().c_str());
         return;
     }
@@ -53,7 +55,7 @@ void OnDisconnected(ControllerPtr controller)
     for (uint8_t i = 0; i < BP32_MAX_GAMEPADS; ++i) {
         Slot& slot = slots[i];
         if (slot.controller != controller) continue;
-        if (slot.notified) BleRemote::Notify(BleRemote::ConnectionEvent::GamepadDisconnected);
+        if (slot.notified) ConnectionEvents::Push(ConnectionEvents::Event::GamepadDisconnected);
         slot.input.Reset();
         slot.controller = nullptr;
         slot.notified = false;
@@ -64,15 +66,16 @@ void OnDisconnected(ControllerPtr controller)
 }
 }
 
-void Controller_init()
+void GamepadController::Init()
 {
     Serial.printf("Bluepad32 firmware: %s\n", BP32.firmwareVersion());
     BP32.setup(OnConnected, OnDisconnected);
     // Preserve Bluetooth pairing keys for reconnect after reboot.
     BP32.enableVirtualDevice(false);
+    BP32.enableNewBluetoothConnections(true);
 }
 
-void Controller_loop()
+void GamepadController::Update()
 {
     BP32.update();
     const uint32_t now_ms = millis();
@@ -84,7 +87,7 @@ void Controller_loop()
         if (!slot.notified) {
             if (!IsTarget(controller)) { controller->disconnect(); continue; }
             slot.notified = true;
-            BleRemote::Notify(BleRemote::ConnectionEvent::GamepadConnected);
+            ConnectionEvents::Push(ConnectionEvents::Event::GamepadConnected);
         }
         UserInput::Action action = UserInput::Action::None;
         if (controller->hasData()) {

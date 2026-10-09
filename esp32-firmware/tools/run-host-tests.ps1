@@ -18,6 +18,12 @@ foreach ($testFile in $testFiles) {
     if ($testName -eq 'input_queue') {
         $compileArguments += @('-I', (Join-Path $projectRoot 'test/support'), (Join-Path $projectRoot 'src/Input/InputQueue.cpp'))
     }
+    if ($testName -eq 'connection_events') {
+        $compileArguments += @('-I', (Join-Path $projectRoot 'test/support'), (Join-Path $projectRoot 'src/Bluetooth/ConnectionEvents.cpp'))
+    }
+    if ($testName -eq 'bluetooth_service') {
+        $compileArguments += Join-Path $projectRoot 'src/Bluetooth/BluetoothService.cpp'
+    }
     $compileArguments += @('-o', $executable)
     & $compilerCommand.Source @compileArguments
     if ($LASTEXITCODE -ne 0) { throw "Compile failed: $testName" }

@@ -1,26 +1,18 @@
-#include "BleRemote.h"
+#include "MiniAppRemote.h"
 
 #include <Arduino.h>
-#include <Bluepad32.h>
 #include <btstack.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/queue.h>
 
-#include "BleRemoteProfile.h"
-#include "Controller/Controller.h"
-#include "InputQueue.h"
-#include "InputAdapters.h"
+#include "MiniAppProfile.h"
+#include "MiniAppConnection.h"
+#include "ConnectionEvents.h"
+#include "Configs/BluetoothConfig.h"
+#include "Input/InputQueue.h"
+#include "Input/InputAdapters.h"
 
 namespace
 {
-QueueHandle_t connection_queue = NULL;
-hci_con_handle_t mini_app_handle = HCI_CON_HANDLE_INVALID;
-
-const uint8_t advertising_data[] = {
-    0x02, 0x01, 0x06,
-    0x0b, 0x09,
-    'F', 'i', 'g', 'u', 'r', 'e', 'C', 'a', 's', 'e',
-};
+MiniAppConnection::State connection;
 
 void OnAttEvent(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size)
 {
@@ -35,20 +27,17 @@ void OnAttEvent(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t
         const hci_con_handle_t handle = att_event_connected_get_handle(packet);
         // Gamepad ATT links are not phone connections. The phone is central;
         // ESP32 must be the LE peripheral for this notification.
-        if (gap_get_connection_type(handle) == GAP_CONNECTION_LE &&
-            gap_get_role(handle) == HCI_ROLE_SLAVE &&
-            mini_app_handle == HCI_CON_HANDLE_INVALID)
+        if (connection.Connect(handle, gap_get_connection_type(handle) == GAP_CONNECTION_LE,
+                               gap_get_role(handle) == HCI_ROLE_SLAVE))
         {
-            mini_app_handle = handle;
-            BleRemote::Notify(BleRemote::ConnectionEvent::MiniAppConnected);
+            ConnectionEvents::Push(ConnectionEvents::Event::MiniAppConnected);
         }
         break;
     }
     case ATT_EVENT_DISCONNECTED:
-        if (att_event_disconnected_get_handle(packet) == mini_app_handle)
+        if (connection.Disconnect(att_event_disconnected_get_handle(packet)))
         {
-            mini_app_handle = HCI_CON_HANDLE_INVALID;
-            BleRemote::Notify(BleRemote::ConnectionEvent::MiniAppDisconnected);
+            ConnectionEvents::Push(ConnectionEvents::Event::MiniAppDisconnected);
             gap_advertisements_enable(1);
         }
         break;
@@ -82,18 +71,8 @@ int OnWrite(
 }
 } // namespace
 
-void BleRemote::Init()
+void MiniAppRemote::Init()
 {
-    connection_queue = xQueueCreate(8, sizeof(ConnectionEvent));
-    if (connection_queue == NULL)
-    {
-        Serial.println("BLE remote queue allocation failed");
-        return;
-    }
-
-    Controller_init();
-    BP32.enableNewBluetoothConnections(true);
-
     att_server_init(kBleRemoteProfileData, NULL, OnWrite);
     att_server_register_packet_handler(OnAttEvent);
 
@@ -107,26 +86,9 @@ void BleRemote::Init()
         0x07,
         0x00);
     gap_advertisements_set_data(
-        sizeof(advertising_data),
-        const_cast<uint8_t *>(advertising_data));
+        sizeof(BluetoothConfig::AdvertisingData),
+        const_cast<uint8_t *>(BluetoothConfig::AdvertisingData));
     gap_advertisements_enable(1);
 
     Serial.println("BLE remote ready: FigureCase");
-}
-
-void BleRemote::Update()
-{
-    Controller_loop();
-}
-
-void BleRemote::Notify(ConnectionEvent event)
-{
-    if (connection_queue != NULL)
-        xQueueSend(connection_queue, &event, 0);
-}
-
-bool BleRemote::ReadConnectionEvent(ConnectionEvent &event)
-{
-    return connection_queue != NULL &&
-        xQueueReceive(connection_queue, &event, 0) == pdTRUE;
 }
