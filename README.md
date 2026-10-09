@@ -31,16 +31,17 @@ wechat-mini-program/ 微信小程序 BLE 遥控器
 | 模块 | 职责 |
 |---|---|
 | `src/main.cpp` | 初始化、OLED/编码器/灯带/电池采样任务，主循环蓝牙轮询 |
-| `src/Controller` | Bluepad32 手柄管理、地址过滤、输入边沿和重复计时、可选日志 |
-| `src/Input` | BTstack 小程序 ATT 服务、命令解码、输入及连接事件队列、串口调试 |
+| `src/Controller` | Bluepad32 手柄管理、地址过滤、报告采集，调用独立输入状态机 |
+| `src/Input` | 纯手柄状态机、统一输入事件队列、输入适配、BTstack 小程序 ATT 服务及连接通知 |
+| `src/Diagnostics` | 独立可开关手柄日志，不参与控制逻辑 |
 | `src/OledUI` | 菜单、导航、页面处理、绘制、动画、通知弹窗 |
 | `src/Encoder` | 编码器采集与按钮事件 |
 | `src/HAL`、`RGB`、`TB6612` | 电源、灯带、电机等硬件操作 |
 | `src/Configs` | 配置与版本；仍含待清理的历史移植配置 |
 
-手柄当前通过共享输入标记与 UI 通信，小程序通过队列输入。蓝牙栈为 Bluepad32/BTstack，不应混用另一蓝牙栈的 BLEDevice 初始化。
+手柄、小程序、编码器和串口统一提交带来源与时间戳的语义事件；UI 每轮最多消费一个 FIFO 事件。队列固定容量 16，满时拒绝新事件并计数，不覆盖旧事件，不阻塞生产者。蓝牙栈为 Bluepad32/BTstack，不应混用另一蓝牙栈的 BLEDevice 初始化。
 
-[架构重构设计](资料/docs/superpowers/specs/2026-10-10-firmware-architecture-design.md)为待实施方案：统一输入队列、蓝牙职责分离、App 层和 UI 页面拆分尚未完成。历史文档路径见[资料说明](资料/README.md)。
+[架构重构设计](资料/docs/superpowers/specs/2026-10-10-firmware-architecture-design.md)分阶段实施。第一阶段已提取输入状态机和统一队列，仍需实机回归；蓝牙职责分离、App 层和 UI 页面拆分尚未实施。[第一阶段验收记录](资料/docs/firmware-input-validation.md)。历史文档路径见[资料说明](资料/README.md)。
 
 ## 环境与编译
 
@@ -63,7 +64,7 @@ wechat-mini-program/ 微信小程序 BLE 遥控器
 
 若环境未初始化，用 VS Code 打开 `esp32-firmware` 并等待 PlatformIO 扩展初始化后重试。`.pio/`、生成的 `.vscode/` 不入库。重命名后重新打开新固件目录。
 
-`test/` 保留六组独立主机 C++ 测试：导航、菜单类型、主页状态、动画曲线、小程序命令、串口命令。尚未配置 PlatformIO native 测试环境；编译及逻辑测试不能替代实机验收。
+`test/` 包含九组独立主机 C++ 测试：原有六组加手柄状态机、生产队列实现和输入适配器。已安装 g++/clang++ 时，在仓库根目录运行 `& .\esp32-firmware\tools\run-host-tests.ps1`。尚未配置 PlatformIO native 环境；编译及逻辑测试不能替代实机验收。
 
 ## 代码中的引脚配置
 
