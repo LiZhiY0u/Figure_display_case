@@ -287,4 +287,3 @@ void OledUI::Window_Proc()
         }
     }
 }
-
