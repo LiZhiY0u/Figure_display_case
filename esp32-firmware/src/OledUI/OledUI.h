@@ -248,8 +248,6 @@ typedef struct
 // ===========================
 // External globals (from main.h)
 // ===========================
-extern bool key_en;        // encoder button pressed flag
-extern uint8_t gamepad_axis; // gamepad axis input (1/2/3)
 
 // ===========================
 // Global UI contexts

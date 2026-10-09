@@ -13,6 +13,9 @@
 #include "Input/BleRemote.h"
 #include "ConnectionToast.h"
 #include "Input/SerialDebugInput.h"
+#include "Input/InputQueue.h"
+#include "Input/InputAdapters.h"
+#include "UiInputAdapter.h"
 #include "main.h"
 
 #ifndef ENABLE_SERIAL_INPUT_DEBUG
@@ -23,8 +26,6 @@
 // External references
 // ===========================
 // u8g2     - declared in OledDriver.h, defined in OledDriver.cpp
-// key_en   - declared in HAL_Encoder.h, defined in HAL_Encoder.cpp
-// gamepad_axis - declared in main.h, defined in main.cpp
 // Menu data     - in OledMenus.cpp
 
 // (No local definitions here - all globals come from their respective headers)
@@ -71,98 +72,29 @@ const char* light_effect_name[] = {
 
 void OledUI::Key_Scan()
 {
-    // Encoder input via HAL_Encoder
-    int16_t enc_diff = ENCODER::Encoder_GetDiff();
-    if (enc_diff > 0)
-    {
-        btn.id = BTN_ID_CW;
-        btn.pressed = true;
-    }
-    else if (enc_diff < 0)
-    {
-        btn.id = BTN_ID_CC;
-        btn.pressed = true;
-    }
-
-    // Button press from main app (encoder button or external)
-    if (key_en)
-    {
-        key_en = false;
-        btn.id = BTN_ID_SP;
-        btn.pressed = true;
-    }
-
-    // Gamepad axis (for compatibility)
-    if (gamepad_axis == 1)
-    {
-        gamepad_axis = 0;
-        btn.id = BTN_ID_CW;
-        btn.pressed = true;
-    }
-    else if (gamepad_axis == 2)
-    {
-        gamepad_axis = 0;
-        btn.id = BTN_ID_CC;
-        btn.pressed = true;
-    }
-    else if (gamepad_axis == 3)
-    {
-        gamepad_axis = 0;
-        btn.id = BTN_ID_SP;
-        btn.pressed = true;
-    }
-
-    // BLE remote input. Keep hardware input priority and consume at most one
-    // command per UI iteration.
-    RemoteKeyInput::Action remote_action = RemoteKeyInput::Action::None;
-    if (!btn.pressed && BleRemote::Read(remote_action))
-    {
-        switch (remote_action)
-        {
-        case RemoteKeyInput::Action::Previous:
-            btn.id = BTN_ID_CC;
-            btn.pressed = true;
-            break;
-        case RemoteKeyInput::Action::Next:
-            btn.id = BTN_ID_CW;
-            btn.pressed = true;
-            break;
-        case RemoteKeyInput::Action::Confirm:
-            btn.id = BTN_ID_SP;
-            btn.pressed = true;
-            break;
-        case RemoteKeyInput::Action::None:
-            break;
-        }
-    }
-
+    static_assert(BTN_ID_CC == 0 && BTN_ID_CW == 1 && BTN_ID_SP == 2, "UI input IDs changed");
+    const uint32_t now_ms = millis();
+    const UserInput::Action encoder = InputAdapters::Encoder(ENCODER::Encoder_GetDiff());
+    if (encoder != UserInput::Action::None)
+        InputQueue::Push({encoder, UserInput::Source::Encoder, now_ms});
 #if ENABLE_SERIAL_INPUT_DEBUG
-    // Hardware inputs keep priority. Ignore line endings and consume at most
-    // one valid debug command per UI task iteration.
-    while (!btn.pressed && Serial.available() > 0)
-    {
-        const SerialDebugInput::Command command =
-            SerialDebugInput::Decode(static_cast<char>(Serial.read()));
-
-        switch (command)
-        {
-        case SerialDebugInput::Command::RotateLeft:
-            btn.id = BTN_ID_CC;
-            btn.pressed = true;
-            break;
-        case SerialDebugInput::Command::RotateRight:
-            btn.id = BTN_ID_CW;
-            btn.pressed = true;
-            break;
-        case SerialDebugInput::Command::Press:
-            btn.id = BTN_ID_SP;
-            btn.pressed = true;
-            break;
-        case SerialDebugInput::Command::None:
-            break;
+    while (Serial.available() > 0) {
+        const UserInput::Action action = InputAdapters::Serial(static_cast<char>(Serial.read()));
+        if (action != UserInput::Action::None) {
+            InputQueue::Push({action, UserInput::Source::Serial, now_ms});
+            break; // At most one valid serial command per iteration.
         }
     }
 #endif
+    // Keep a pending UI event intact during page transitions.
+    UserInput::Event event;
+    if (!btn.pressed && InputQueue::Read(event)) {
+        const uint8_t id = UiInputAdapter::ButtonId(event.action);
+        if (id != 255) {
+            btn.id = id;
+            btn.pressed = true;
+        }
+    }
 }
 
 // ===========================

@@ -25,9 +25,6 @@
 
 #include <stdint.h>
 
-// Encoder button pressed flag (set by hardware interrupt, consumed by UI)
-// Defined in HAL_Encoder.cpp
-extern bool key_en;
 
 namespace ENCODER
 {

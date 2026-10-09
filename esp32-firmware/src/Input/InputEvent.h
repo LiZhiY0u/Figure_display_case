@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-namespace Input {
+namespace UserInput {
 enum class Action : uint8_t { None, Previous, Next, Confirm };
 enum class Source : uint8_t { Gamepad, MiniApp, Encoder, Serial };
 struct Event {

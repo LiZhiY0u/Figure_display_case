@@ -10,6 +10,7 @@
 #include "HAL/HAL.h"
 #include "Encoder/HAL_Encoder.h"
 #include "Input/BleRemote.h"
+#include "Input/InputQueue.h"
 #include "RGB.h"
 #include "TB6612.h"
 #include "OledUI/OledDriver.h"
@@ -25,6 +26,7 @@ TaskHandle_t Task_ws2812_Handle;
 TaskHandle_t Task_motor_Handle;
 TaskHandle_t Task_key_Handle;
 TaskHandle_t Task_oled_Handle;
+static bool application_ready = false;
 
 // ===========================
 // Queues
@@ -42,8 +44,6 @@ uint16_t adc = 0;
 Adafruit_NeoPixel RGB3 = Adafruit_NeoPixel(RGB_3_NUM, RGB_PIN_3, NEO_GRB + NEO_KHZ800);
 Motor motor(MOTOR_PIN_1, MOTOR_PIN_2, MOTOR_PWM, 1000, 1);
 
-// key_en is defined in HAL_Encoder.cpp (declared in HAL_Encoder.h)
-// gamepad_axis is defined in Controller.cpp (declared in Controller.h)
 
 // ===========================
 // Task: Start / monitoring
@@ -144,6 +144,10 @@ void Task_update(void* pvParameters)
 void setup()
 {
     HAL::Init();
+    if (!InputQueue::Init()) {
+        Serial.println("Input queue initialization failed; application not started");
+        return;
+    }
     BleRemote::Init();
 
     xTaskCreatePinnedToCore(
@@ -160,6 +164,7 @@ void setup()
 
     // xTaskCreatePinnedToCore(
     //     Controller_start, "Controller_start", 1024 * 10, NULL, 2, &Task_controller_Handle, 1);
+    application_ready = true;
 }
 
 // ===========================
@@ -167,7 +172,8 @@ void setup()
 // ===========================
 void loop()
 {
-    BleRemote::Update();
+    if (application_ready)
+        BleRemote::Update();
     vTaskDelay(10);
 }
 

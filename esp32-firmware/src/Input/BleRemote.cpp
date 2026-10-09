@@ -8,10 +8,11 @@
 
 #include "BleRemoteProfile.h"
 #include "Controller/Controller.h"
+#include "InputQueue.h"
+#include "InputAdapters.h"
 
 namespace
 {
-QueueHandle_t key_queue = NULL;
 QueueHandle_t connection_queue = NULL;
 hci_con_handle_t mini_app_handle = HCI_CON_HANDLE_INVALID;
 
@@ -70,13 +71,12 @@ int OnWrite(
     if (attribute_handle != kBleRemoteWriteValueHandle ||
         offset != 0 ||
         buffer_size != 1 ||
-        buffer == NULL ||
-        key_queue == NULL)
+        buffer == NULL)
         return 0;
 
-    const RemoteKeyInput::Action action = RemoteKeyInput::Decode(buffer[0]);
-    if (action != RemoteKeyInput::Action::None)
-        xQueueSend(key_queue, &action, 0);
+    const UserInput::Action action = InputAdapters::MiniApp(buffer[0]);
+    if (action != UserInput::Action::None)
+        InputQueue::Push({action, UserInput::Source::MiniApp, millis()});
 
     return 0;
 }
@@ -84,9 +84,8 @@ int OnWrite(
 
 void BleRemote::Init()
 {
-    key_queue = xQueueCreate(8, sizeof(RemoteKeyInput::Action));
     connection_queue = xQueueCreate(8, sizeof(ConnectionEvent));
-    if (key_queue == NULL || connection_queue == NULL)
+    if (connection_queue == NULL)
     {
         Serial.println("BLE remote queue allocation failed");
         return;
@@ -130,9 +129,4 @@ bool BleRemote::ReadConnectionEvent(ConnectionEvent &event)
 {
     return connection_queue != NULL &&
         xQueueReceive(connection_queue, &event, 0) == pdTRUE;
-}
-
-bool BleRemote::Read(RemoteKeyInput::Action &action)
-{
-    return key_queue != NULL && xQueueReceive(key_queue, &action, 0) == pdTRUE;
 }

@@ -4,7 +4,7 @@
 // Task-context API only. Initialize before starting any producers.
 namespace InputQueue {
 bool Init();
-bool Push(const Input::Event& event);
-bool Read(Input::Event& event);
+bool Push(const UserInput::Event& event);
+bool Read(UserInput::Event& event);
 uint32_t DroppedCount();
 }

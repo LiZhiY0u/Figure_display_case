@@ -1,4 +1,5 @@
 #include "Encoder/ButtonEvent.h"
+#include "Input/InputQueue.h"
 
 static ButtonEvent EncoderPush(3000);
 
@@ -42,7 +43,6 @@ static void Encoder_IrqHandler()
 }
 
 // Encoder button pressed flag
-bool key_en = false;
 
 // 按键回调
 static void Encoder_PushHandler(ButtonEvent *btn, int event)
@@ -73,7 +73,7 @@ static void Encoder_PushHandler(ButtonEvent *btn, int event)
         // Serial.printf("EVENT_SHORT_CLICKED");
         // key_msg.id = 2;
         // key_msg.pressed = true;
-        key_en=1;
+        InputQueue::Push({UserInput::Action::Confirm, UserInput::Source::Encoder, millis()});
     }
     else if (event == ButtonEvent::EVENT_DOUBLE_CLICKED)
     {

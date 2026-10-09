@@ -16,7 +16,6 @@ void Notify(ConnectionEvent event);
 bool ReadConnectionEvent(ConnectionEvent &event);
 void Init();
 void Update();
-bool Read(RemoteKeyInput::Action &action);
 } // namespace BleRemote
 
 #endif

@@ -16,9 +16,6 @@
 // #include "OLED/Oled.h"
 // #include "Controller/Controller.hpp"
 
-// Shared globals used across modules
-// key_en is declared in HAL_Encoder.h (defined in HAL_Encoder.cpp)
-extern uint8_t gamepad_axis;
 
 #define ENABLE_BLE_KEY_BOARD
 #define ENABLE_WS2812_LED

@@ -12,13 +12,13 @@ std::atomic<uint32_t> dropped(0);
 bool InputQueue::Init()
 {
     if (queue == nullptr)
-        queue = xQueueCreate(Capacity, sizeof(Input::Event));
+        queue = xQueueCreate(Capacity, sizeof(UserInput::Event));
     return queue != nullptr;
 }
 
-bool InputQueue::Push(const Input::Event& event)
+bool InputQueue::Push(const UserInput::Event& event)
 {
-    if (queue == nullptr || event.action == Input::Action::None)
+    if (queue == nullptr || event.action == UserInput::Action::None)
         return false;
     if (xQueueSend(queue, &event, 0) == pdTRUE)
         return true;
@@ -26,7 +26,7 @@ bool InputQueue::Push(const Input::Event& event)
     return false;
 }
 
-bool InputQueue::Read(Input::Event& event)
+bool InputQueue::Read(UserInput::Event& event)
 {
     return queue != nullptr && xQueueReceive(queue, &event, 0) == pdTRUE;
 }

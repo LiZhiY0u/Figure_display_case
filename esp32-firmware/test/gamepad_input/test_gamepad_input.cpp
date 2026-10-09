@@ -3,7 +3,7 @@
 #include <initializer_list>
 #include "Input/GamepadInput.h"
 
-using Input::Action;
+using UserInput::Action;
 using GamepadInput::Report;
 using GamepadInput::State;
 

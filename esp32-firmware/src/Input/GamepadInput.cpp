@@ -1,7 +1,7 @@
 #include "GamepadInput.h"
 #include "Configs/InputConfig.h"
 
-using Input::Action;
+using UserInput::Action;
 
 Action GamepadInput::State::Update(const Report& report, uint32_t now_ms)
 {
