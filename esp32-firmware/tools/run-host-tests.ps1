@@ -25,10 +25,19 @@ foreach ($testFile in $testFiles) {
         $compileArguments += Join-Path $projectRoot 'src/Bluetooth/BluetoothService.cpp'
     }
     $compileArguments += @('-o', $executable)
+    if ($testName -eq 'app_lifecycle') {
+        $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/app')) + $compileArguments + (Join-Path $projectRoot 'src/App/App.cpp')
+    }
     & $compilerCommand.Source @compileArguments
     if ($LASTEXITCODE -ne 0) { throw "Compile failed: $testName" }
     & $executable
     if ($LASTEXITCODE -ne 0) { throw "Test failed: $testName" }
+    if ($testName -eq 'app_lifecycle') {
+        foreach ($failure in @(2, 3, 4)) {
+            & $executable $failure
+            if ($LASTEXITCODE -ne 0) { throw "Test failed: $testName failure=$failure" }
+        }
+    }
     Write-Output "PASS $testName"
     $passed++
 }
