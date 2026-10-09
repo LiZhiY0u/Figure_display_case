@@ -13,13 +13,7 @@
 #include <U8g2lib.h>
 #include <Wire.h>
 
-// Hardware pins (from main.h)
-#ifndef OLED_SCL
-#define OLED_SCL 22
-#endif
-#ifndef OLED_SDA
-#define OLED_SDA 21
-#endif
+#include "Configs/BoardConfig.h"
 
 // Display dimensions
 #define DISP_H 64   // Screen height (pixels)

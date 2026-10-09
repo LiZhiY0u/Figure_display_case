@@ -28,6 +28,9 @@ foreach ($testFile in $testFiles) {
     if ($testName -eq 'app_lifecycle') {
         $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/app')) + $compileArguments + (Join-Path $projectRoot 'src/App/App.cpp')
     }
+    if ($testName -eq 'app_tasks') {
+        $compileArguments = @('-I', (Join-Path $projectRoot 'test/support/app')) + $compileArguments + (Join-Path $projectRoot 'src/App/AppTasks.cpp')
+    }
     & $compilerCommand.Source @compileArguments
     if ($LASTEXITCODE -ne 0) { throw "Compile failed: $testName" }
     & $executable
@@ -39,6 +42,12 @@ foreach ($testFile in $testFiles) {
         }
     }
     Write-Output "PASS $testName"
+    if ($testName -eq 'app_tasks') {
+        foreach ($failure in @(1, 2, 3, 4)) {
+            & $executable $failure
+            if ($LASTEXITCODE -ne 0) { throw "Test failed: $testName failure=$failure" }
+        }
+    }
     $passed++
 }
 if ($passed -eq 0) { throw 'No tests selected.' }

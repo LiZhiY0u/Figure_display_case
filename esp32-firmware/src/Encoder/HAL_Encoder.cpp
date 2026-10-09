@@ -1,4 +1,5 @@
 #include "Encoder/ButtonEvent.h"
+#include "Encoder/HAL_Encoder.h"
 #include "Input/InputQueue.h"
 
 static ButtonEvent EncoderPush(3000);

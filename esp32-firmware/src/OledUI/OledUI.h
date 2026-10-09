@@ -246,10 +246,6 @@ typedef struct
 } Button_Context;
 
 // ===========================
-// External globals (from main.h)
-// ===========================
-
-// ===========================
 // Global UI contexts
 // ===========================
 extern UI_Context ui;

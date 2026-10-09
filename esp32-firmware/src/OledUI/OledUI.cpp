@@ -15,7 +15,8 @@
 #include "Input/InputQueue.h"
 #include "Input/InputAdapters.h"
 #include "UiInputAdapter.h"
-#include "main.h"
+#include "HAL/HAL.h"
+#include "Encoder/HAL_Encoder.h"
 
 #ifndef ENABLE_SERIAL_INPUT_DEBUG
 #define ENABLE_SERIAL_INPUT_DEBUG 0

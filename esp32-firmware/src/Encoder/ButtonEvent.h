@@ -27,7 +27,8 @@
 
 #include <Arduino.h>
 #include <stdint.h>
-#include "main.h"
+#include <Arduino.h>
+#include "Configs/BoardConfig.h"
 
 class ButtonEvent
 {

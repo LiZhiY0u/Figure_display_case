@@ -1,10 +1,6 @@
 #include "HAL/HAL.h"
 #include "Configs/Version.h"
 
-#define DISP_HOR_RES CONFIG_SCREEN_HOR_RES
-#define DISP_VER_RES CONFIG_SCREEN_VER_RES
-#define DISP_BUF_SIZE CONFIG_SCREEN_BUFFER_SIZE
-// extern lv_color_t *lv_disp_buf_p;
 
 void HAL::Init()
 {
